@@ -1,8 +1,16 @@
 const express = require('express')
 const path = require('path')
+const Handlebars = require('handlebars');
 const exphbs = require('express-handlebars')
 const methodoverride = require('method-override')
 const session = require('express-session')
+const flash = require('connect-flash')
+
+
+// Import function exported by newly installed node modules.
+const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access');
+
+
 //initiliazations
 const app = express()
 require('./database')
@@ -13,7 +21,8 @@ app.engine('.hbs', exphbs({
     defaultLayout: 'main',
     layoutsDir: path.join(app.get('views'), 'layouts'),
     partialsDir: path.join(app.get('views'), 'partials'),
-    extname: '.hbs'
+    extname: '.hbs',
+    handlebars: allowInsecurePrototypeAccess(Handlebars)
 }))
 app.set('view engine', '.hbs')
 
@@ -26,9 +35,18 @@ app.use(session({
     resave: true,
     saveUninitialized: true
 }))
+app.use(flash())
 
 
 //global variables
+app.use((req,res,next)=>{
+    res.locals.success_msg = req.flash('success_msg')
+    res.locals.error_msg = req.flash('error_msg')
+    
+    next()
+})
+
+
 //routes
 app.use(require('./src/routes/index'))
 app.use(require('./src/routes/notes'))
