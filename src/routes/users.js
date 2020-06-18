@@ -49,5 +49,10 @@ router.post('/users/signUp', async (req,res)=>{
         }
     }
 })
+router.get('/users/logout',(req,res)=>{
+    req.logout()
+    res.redirect('/')
+})
+
 
 module.exports = router
